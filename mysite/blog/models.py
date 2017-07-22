@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 
 class Post(models.Model):
@@ -17,3 +19,21 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+
+
+class UserProfile(models.Model):
+    """docstring for ClassName"""
+    user = models.OneToOneField(User)
+    email = models.CharField(max_length=100, default='')
+    city = models.CharField(max_length=100, default='')
+    college = models.CharField(max_length=100, default='')
+    phone = models.IntegerField(default=0)
+    
+
+def create_profile(sender, **kwargs):
+    if kwargs['created']:
+        user_profile = UserProfile.objects.create(user = kwargs['instance'])
+
+
+post_save.connect(create_profile, sender=User)
